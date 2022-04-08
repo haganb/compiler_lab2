@@ -97,7 +97,6 @@ void getEquations(struct stack* s, char* emission){
             // Case for regular expression 
             sprintf(buffer, "\tS%d:\t%s%s", labelCount, pointer->nodeName, pointer->equation);
             labelCount++;
-            printf("buffer:%s\n", buffer);
             strcat(emission, buffer);
         }else{
             // Case for if/else expression
@@ -105,7 +104,6 @@ void getEquations(struct stack* s, char* emission){
             sprintf(ifElseBuffer, "%s", pointer->equation);
             char *delimited = strtok(ifElseBuffer, "\n"); // splits expression up into elements seperated by newline
             while(delimited != NULL){
-                printf("delimited:%s\n", delimited);
                 if(strcmp(delimited, "}") == 0){
                     sprintf(buffer, "\t\t%s\n", delimited);
                 }else{
