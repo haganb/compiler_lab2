@@ -8,9 +8,6 @@ int main(){
 
 	//Using printf and scanf to get user input values
 
-	printf("A=");
-	scanf("%d", &A);
-
 	printf("B=");
 	scanf("%d", &B);
 
@@ -23,26 +20,22 @@ int main(){
 	printf("E=");
 	scanf("%d", &E);
 
-	printf("F=");
-	scanf("%d", &F);
-
 	//Three-Address Code Representation
-	A = B;
-	Tmp1 = A + C;
-	Tmp2 = Tmp1 * 1;
-	B = D;
-	Tmp3 = B / 2;
-	C = Tmp3;
-	D = 4;
-	if(D){
-		D = 5;
-		Tmp4 = D;
-	} else {
-		Tmp4 = 0;
-	}
-		
-	E = Tmp4;
-	F = D;
+	S1:	A = B;
+	S2:	Tmp1 = A + C;
+	S3:	Tmp2 = Tmp1 * 1;
+	S4:	B = D;
+	S5:	Tmp3 = B / 2;
+	S6:	C = Tmp3;
+	S7:	D = 4;
+	S8:	if(D){
+	S9:		D = 5;
+	S10:		Tmp4 = D;
+	S11:	} else {
+	S12:		Tmp4 = 0;
+		}
+	S13:	E = Tmp4;
+	S14:	F = D;
 
 	//Print final value of variables
 	printf("A=%d\n", A);

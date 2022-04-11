@@ -35,7 +35,7 @@ void yyerror(char *ps, ...) { /* need this to avoid link problem */
 %union {
     int d; /* value */
     char name[32]; /* for variables */
-    struct node* node_ptr;
+    struct node* node;
 }
 
 %token <d> NUM 
@@ -45,7 +45,7 @@ void yyerror(char *ps, ...) { /* need this to avoid link problem */
 %right '=' EXP '!' '?' '\n'
 
 //%type <d> expression factor term statement
-%type <node_ptr> expression
+%type <node> expression
 %start infix
 
 %%
@@ -56,7 +56,7 @@ equation:
     expression {}
 expression :
     NUM{
-        $$ = newNode("placeholder", $1);
+        $$ = newNode("Tmp", $1);
         sprintf($$->nodeName, "%d", $1);
     }
     | '(' expression ')' {
@@ -116,7 +116,7 @@ expression :
             output = 0;
         }else{
             output = $3->nodeVal;
-        } //= ($1->nodeVal == 0) ? 0 : $3->nodeVal; // ternary operator to handle ! 
+        } 
         
         // first part of conditional statement
         char exp[BUFFERSIZE];
@@ -141,7 +141,12 @@ expression :
     }
     | '!' expression {
         // same as + case, just change operation
-        int output = ($2->nodeVal == 0) ? 1 : 0;
+        int output;
+        if($2->nodeVal == 0){
+            output = 1;
+        }else{
+            output = 0;
+        } 
         $$ = push(STACK, "Tmp", output);
         sprintf($$->nodeName, "Tmp%d", tmpNum);
         tmpNum++;
@@ -172,18 +177,25 @@ void addNewInputVariable(char* name){
 // Main function
 int main(int argc, char* argv[]){
     HEAD = (struct node*)malloc(sizeof(struct node*)); // instantiate global HEAD node
-    STACK = (struct stack*)malloc(sizeof(struct stack*));
+    STACK = (struct stack*)malloc(sizeof(struct stack*)); // instantiate global STACK
     STACK->top = NULL;
     STACK->bottom = NULL;
     STACK->height = 0;
     
     // Open file 
-    yyin = fopen("equation", "r");
+    yyin = fopen("equation.txt", "r"); // file should always be equation.txt
     printf("\n"); // TODO: Program segfaults without this. What is going on?
     yyparse();
-    //printStack(STACK); // Task #1
 
-    printEmission(STACK, inputVariables); // Task #3
+    // Task #1
+    printf("\n****************************\n");
+    printf("Revised Frontend (Task #1):\n");
+    printStack(STACK); 
+
+    // Task #3
+    printf("\n****************************\n");
+    printf("Program emission (Task #3):\n");
+    printEmission(STACK, inputVariables); 
     fclose(yyin);
     return 0;
 }

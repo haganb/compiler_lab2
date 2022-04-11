@@ -63,7 +63,7 @@ union YYSTYPE
 
     int d; /* value */
     char name[32]; /* for variables */
-    struct node* node_ptr;
+    struct node* node;
 
 #line 69 "infix.tab.h"
 

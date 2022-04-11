@@ -1,6 +1,5 @@
 #include "stack.h"
 #include "node.h"
-#define DEBUG
 
 struct node* push(struct stack* s, char* nodeName, int nodeVal){
     struct node* n = newNode(nodeName, nodeVal);
@@ -28,11 +27,13 @@ struct node* pop(struct stack* s){
     // Re assign values
     s->top = ptr2;
     s->top->next = NULL;
-    s->height--;
+    s->height--; // reflect change in stack height
     return ptr1;
 }
 
-// helper functions
+// ********************** Helper Functions **********************
+
+// iterate through stack and print all expressions in order
 void printStack(struct stack* s){
     struct node* pointer = s->bottom;
     while(pointer->next != NULL){
@@ -47,6 +48,7 @@ void printStack(struct stack* s){
     }
 }
 
+// used to prevent memory leaks
 void deleteStack(struct stack* s){
     struct node* pointer = s->bottom;
     deleteNodes(pointer);

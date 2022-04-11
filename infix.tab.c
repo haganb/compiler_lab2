@@ -162,7 +162,7 @@ union YYSTYPE
 
     int d; /* value */
     char name[32]; /* for variables */
-    struct node* node_ptr;
+    struct node* node;
 
 #line 168 "infix.tab.c"
 
@@ -541,7 +541,7 @@ static const yytype_int8 yytranslate[] =
 static const yytype_uint8 yyrline[] =
 {
        0,    53,    53,    53,    56,    58,    62,    65,    68,    71,
-      78,    86,    94,   102,   113,   137,   145,   151
+      78,    86,    94,   102,   113,   142,   155,   161
 };
 #endif
 
@@ -1355,8 +1355,8 @@ yyreduce:
   case 5:
 #line 58 "infix.y"
        {
-        (yyval.node_ptr) = newNode("placeholder", (yyvsp[0].d));
-        sprintf((yyval.node_ptr)->nodeName, "%d", (yyvsp[0].d));
+        (yyval.node) = newNode("Tmp", (yyvsp[0].d));
+        sprintf((yyval.node)->nodeName, "%d", (yyvsp[0].d));
     }
 #line 1362 "infix.tab.c"
     break;
@@ -1364,7 +1364,7 @@ yyreduce:
   case 6:
 #line 62 "infix.y"
                          {
-        (yyval.node_ptr) = (yyvsp[-1].node_ptr);
+        (yyval.node) = (yyvsp[-1].node);
     }
 #line 1370 "infix.tab.c"
     break;
@@ -1388,11 +1388,11 @@ yyreduce:
   case 9:
 #line 71 "infix.y"
                                 {
-        int output = (yyvsp[-2].node_ptr)->nodeVal + (yyvsp[0].node_ptr)->nodeVal; // result of operation
-        (yyval.node_ptr) = push(STACK, "Tmp", output); // push tmp node to stack
-        sprintf((yyval.node_ptr)->nodeName, "Tmp%d", tmpNum); // load tmpname with corresponding counter into output nodename
+        int output = (yyvsp[-2].node)->nodeVal + (yyvsp[0].node)->nodeVal; // result of operation
+        (yyval.node) = push(STACK, "Tmp", output); // push tmp node to stack
+        sprintf((yyval.node)->nodeName, "Tmp%d", tmpNum); // load tmpname with corresponding counter into output nodename
         tmpNum++; // increment tmp counter
-        sprintf((yyval.node_ptr)->equation, " = %s + %s;\n", (yyvsp[-2].node_ptr)->nodeName, (yyvsp[0].node_ptr)->nodeName); // build expression string for output node
+        sprintf((yyval.node)->equation, " = %s + %s;\n", (yyvsp[-2].node)->nodeName, (yyvsp[0].node)->nodeName); // build expression string for output node
     }
 #line 1398 "infix.tab.c"
     break;
@@ -1401,11 +1401,11 @@ yyreduce:
 #line 78 "infix.y"
                                 {
         // same as + case, just change operation
-        int output = (yyvsp[-2].node_ptr)->nodeVal - (yyvsp[0].node_ptr)->nodeVal;
-        (yyval.node_ptr) = push(STACK, "Tmp", output);
-        sprintf((yyval.node_ptr)->nodeName, "Tmp%d", tmpNum);
+        int output = (yyvsp[-2].node)->nodeVal - (yyvsp[0].node)->nodeVal;
+        (yyval.node) = push(STACK, "Tmp", output);
+        sprintf((yyval.node)->nodeName, "Tmp%d", tmpNum);
         tmpNum++;
-        sprintf((yyval.node_ptr)->equation, " = %s - %s;\n", (yyvsp[-2].node_ptr)->nodeName, (yyvsp[0].node_ptr)->nodeName);
+        sprintf((yyval.node)->equation, " = %s - %s;\n", (yyvsp[-2].node)->nodeName, (yyvsp[0].node)->nodeName);
     }
 #line 1411 "infix.tab.c"
     break;
@@ -1414,11 +1414,11 @@ yyreduce:
 #line 86 "infix.y"
                                 {
         // same as + case, just change operation
-        int output = (yyvsp[-2].node_ptr)->nodeVal * (yyvsp[0].node_ptr)->nodeVal;
-        (yyval.node_ptr) = push(STACK, "Tmp", output);
-        sprintf((yyval.node_ptr)->nodeName, "Tmp%d", tmpNum);
+        int output = (yyvsp[-2].node)->nodeVal * (yyvsp[0].node)->nodeVal;
+        (yyval.node) = push(STACK, "Tmp", output);
+        sprintf((yyval.node)->nodeName, "Tmp%d", tmpNum);
         tmpNum++;
-        sprintf((yyval.node_ptr)->equation, " = %s * %s;\n", (yyvsp[-2].node_ptr)->nodeName, (yyvsp[0].node_ptr)->nodeName);
+        sprintf((yyval.node)->equation, " = %s * %s;\n", (yyvsp[-2].node)->nodeName, (yyvsp[0].node)->nodeName);
     }
 #line 1424 "infix.tab.c"
     break;
@@ -1427,11 +1427,11 @@ yyreduce:
 #line 94 "infix.y"
                                 {
         // same as + case, just change operation
-        int output = (yyvsp[-2].node_ptr)->nodeVal / (yyvsp[0].node_ptr)->nodeVal;
-        (yyval.node_ptr) = push(STACK, "Tmp", output);
-        sprintf((yyval.node_ptr)->nodeName, "Tmp%d", tmpNum);
+        int output = (yyvsp[-2].node)->nodeVal / (yyvsp[0].node)->nodeVal;
+        (yyval.node) = push(STACK, "Tmp", output);
+        sprintf((yyval.node)->nodeName, "Tmp%d", tmpNum);
         tmpNum++;
-        sprintf((yyval.node_ptr)->equation, " = %s / %s;\n", (yyvsp[-2].node_ptr)->nodeName, (yyvsp[0].node_ptr)->nodeName);
+        sprintf((yyval.node)->equation, " = %s / %s;\n", (yyvsp[-2].node)->nodeName, (yyvsp[0].node)->nodeName);
     }
 #line 1437 "infix.tab.c"
     break;
@@ -1440,14 +1440,14 @@ yyreduce:
 #line 102 "infix.y"
                                 {
         // same as + case, just change operation
-        int output = (yyvsp[-2].node_ptr)->nodeVal;
-        for(int i = 0; i < (yyvsp[0].node_ptr)->nodeVal; i++){
-            output *= (yyvsp[-2].node_ptr)->nodeVal;
+        int output = (yyvsp[-2].node)->nodeVal;
+        for(int i = 0; i < (yyvsp[0].node)->nodeVal; i++){
+            output *= (yyvsp[-2].node)->nodeVal;
         }
-        (yyval.node_ptr) = push(STACK, "Tmp", output);
-        sprintf((yyval.node_ptr)->nodeName, "Tmp%d", tmpNum);
+        (yyval.node) = push(STACK, "Tmp", output);
+        sprintf((yyval.node)->nodeName, "Tmp%d", tmpNum);
         tmpNum++;
-        sprintf((yyval.node_ptr)->equation, " = %s ** %s;\n", (yyvsp[-2].node_ptr)->nodeName, (yyvsp[0].node_ptr)->nodeName);
+        sprintf((yyval.node)->equation, " = %s ** %s;\n", (yyvsp[-2].node)->nodeName, (yyvsp[0].node)->nodeName);
     }
 #line 1453 "infix.tab.c"
     break;
@@ -1455,69 +1455,79 @@ yyreduce:
   case 14:
 #line 113 "infix.y"
                                 {
-        int output = ((yyvsp[-2].node_ptr)->nodeVal == 0) ? 0 : (yyvsp[0].node_ptr)->nodeVal; // ternary operator to handle ! 
+        int output;
+        if((yyvsp[-2].node)->nodeVal == 0){
+            output = 0;
+        }else{
+            output = (yyvsp[0].node)->nodeVal;
+        } 
         
         // first part of conditional statement
         char exp[BUFFERSIZE];
-        sprintf(exp, "if(%s){\n", (yyvsp[-2].node_ptr)->nodeName);
+        sprintf(exp, "if(%s){\n", (yyvsp[-2].node)->nodeName);
 
         // fill out first "if" conditional with proper expression
-        while(STACK->top != (yyvsp[-2].node_ptr)){
+        while(STACK->top != (yyvsp[-2].node)){
             struct node* n = pop(STACK);
             char exp_if[BUFFERSIZE];
             sprintf(exp_if, "\t%s%s", n->nodeName, n->equation);
             strcat(exp, exp_if);
         }
-        (yyval.node_ptr) = push(STACK, "Tmp", output); // pushes to stack
-        sprintf((yyval.node_ptr)->nodeName, "Tmp%d", tmpNum); // give temporary value for node
+        (yyval.node) = push(STACK, "Tmp", output); // pushes to stack
+        sprintf((yyval.node)->nodeName, "Tmp%d", tmpNum); // give temporary value for node
         tmpNum++;
 
         // fill out "else" conditional
         char exp_else[BUFFERSIZE];
-        sprintf(exp_else, "\t%s = %s;\n} else {\n\t%s = 0;\n}\n", (yyval.node_ptr)->nodeName, (yyvsp[0].node_ptr)->nodeName, (yyval.node_ptr)->nodeName);
+        sprintf(exp_else, "\t%s = %s;\n} else {\n\t%s = 0;\n}\n", (yyval.node)->nodeName, (yyvsp[0].node)->nodeName, (yyval.node)->nodeName);
         strcat(exp, exp_else);
-        sprintf((yyval.node_ptr)->equation, "%s", exp);
+        sprintf((yyval.node)->equation, "%s", exp);
     }
-#line 1482 "infix.tab.c"
+#line 1487 "infix.tab.c"
     break;
 
   case 15:
-#line 137 "infix.y"
+#line 142 "infix.y"
                      {
         // same as + case, just change operation
-        int output = ((yyvsp[0].node_ptr)->nodeVal == 0) ? 1 : 0;
-        (yyval.node_ptr) = push(STACK, "Tmp", output);
-        sprintf((yyval.node_ptr)->nodeName, "Tmp%d", tmpNum);
+        int output;
+        if((yyvsp[0].node)->nodeVal == 0){
+            output = 1;
+        }else{
+            output = 0;
+        } 
+        (yyval.node) = push(STACK, "Tmp", output);
+        sprintf((yyval.node)->nodeName, "Tmp%d", tmpNum);
         tmpNum++;
-        sprintf((yyval.node_ptr)->equation, " = %d;\n", output);
+        sprintf((yyval.node)->equation, " = %d;\n", output);
     }
-#line 1495 "infix.tab.c"
+#line 1505 "infix.tab.c"
     break;
 
   case 16:
-#line 145 "infix.y"
+#line 155 "infix.y"
                          {
-        struct node* n = findNode((char*)(yyvsp[-2].name), (yyvsp[0].node_ptr)->nodeVal, HEAD); // creates new node if necessary
-        n->nodeVal = (yyvsp[0].node_ptr)->nodeVal; // re-assigns node value
-        (yyval.node_ptr) = push(STACK, n->nodeName, n->nodeVal);
-        sprintf((yyval.node_ptr)->equation, " = %s;\n", (yyvsp[0].node_ptr)->nodeName);
+        struct node* n = findNode((char*)(yyvsp[-2].name), (yyvsp[0].node)->nodeVal, HEAD); // creates new node if necessary
+        n->nodeVal = (yyvsp[0].node)->nodeVal; // re-assigns node value
+        (yyval.node) = push(STACK, n->nodeName, n->nodeVal);
+        sprintf((yyval.node)->equation, " = %s;\n", (yyvsp[0].node)->nodeName);
     }
-#line 1506 "infix.tab.c"
+#line 1516 "infix.tab.c"
     break;
 
   case 17:
-#line 151 "infix.y"
+#line 161 "infix.y"
           {
         struct node* n = findNode((char*)(yyvsp[0].name), 0, HEAD); // creates new node if necessary (shouldn't have to in this case)
         // Add variable to input variables for task #3
         addNewInputVariable(n->nodeName);
-        (yyval.node_ptr) = newNode(n->nodeName, n->nodeVal); // add new node
+        (yyval.node) = newNode(n->nodeName, n->nodeVal); // add new node
     }
-#line 1517 "infix.tab.c"
+#line 1527 "infix.tab.c"
     break;
 
 
-#line 1521 "infix.tab.c"
+#line 1531 "infix.tab.c"
 
       default: break;
     }
@@ -1749,7 +1759,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 157 "infix.y"
+#line 167 "infix.y"
 
 
 // Helper function to add input variable names to global list with duplicate protection
@@ -1763,18 +1773,25 @@ void addNewInputVariable(char* name){
 // Main function
 int main(int argc, char* argv[]){
     HEAD = (struct node*)malloc(sizeof(struct node*)); // instantiate global HEAD node
-    STACK = (struct stack*)malloc(sizeof(struct stack*));
+    STACK = (struct stack*)malloc(sizeof(struct stack*)); // instantiate global STACK
     STACK->top = NULL;
     STACK->bottom = NULL;
     STACK->height = 0;
     
     // Open file 
-    yyin = fopen("equation", "r");
+    yyin = fopen("equation.txt", "r"); // file should always be equation.txt
     printf("\n"); // TODO: Program segfaults without this. What is going on?
     yyparse();
-    //printStack(STACK); // Task #1
 
-    printEmission(STACK, inputVariables); // Task #3
+    // Task #1
+    printf("\n****************************\n");
+    printf("Revised Frontend (Task #1):\n");
+    printStack(STACK); 
+
+    // Task #3
+    printf("\n****************************\n");
+    printf("\nProgram emission (Task #3):\n");
+    printEmission(STACK, inputVariables); 
     fclose(yyin);
     return 0;
 }
