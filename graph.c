@@ -16,7 +16,7 @@ struct edge{
 };
 
 struct graph* createGraph(struct edge e[], int n){
-
+    
 }
 
 void printGraph(struct graph* g){
@@ -24,5 +24,5 @@ void printGraph(struct graph* g){
 }
 
 int main(){
-    
+
 }

@@ -111,7 +111,12 @@ expression :
         sprintf($$->equation, " = %s ** %s;\n", $1->nodeName, $3->nodeName);
     }
     | expression '?' expression {
-        int output = ($1->nodeVal == 0) ? 0 : $3->nodeVal; // ternary operator to handle ! 
+        int output;
+        if($1->nodeVal == 0){
+            output = 0;
+        }else{
+            output = $3->nodeVal;
+        } //= ($1->nodeVal == 0) ? 0 : $3->nodeVal; // ternary operator to handle ! 
         
         // first part of conditional statement
         char exp[BUFFERSIZE];
