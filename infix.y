@@ -5,6 +5,7 @@
 #include "node.h"
 #include "stack.h"
 #include "emission.h"
+#include "registers.h"
 
 /* Compiler Design
 University of Delaware Spring 2022
@@ -16,8 +17,8 @@ Hagan Beatson */
 #define BUFFERSIZE 1032 // global constant for buffer arrays
 
 // Global variables, etc
-extern FILE *yyin; // file to load equations into
-int lineNum = 1; // keeps track of line numbers
+extern FILE *yyin;      // file to load equations into
+int lineNum = 1;        // keeps track of line numbers
 int tmpNum = 1; // pointer to keep track of placeholder nodes
 struct stack* STACK; // global stack structure
 struct node* HEAD; // global head node
@@ -74,6 +75,7 @@ expression :
         sprintf($$->nodeName, "Tmp%d", tmpNum); // load tmpname with corresponding counter into output nodename
         tmpNum++; // increment tmp counter
         sprintf($$->equation, " = %s + %s;\n", $1->nodeName, $3->nodeName); // build expression string for output node
+        sprintf($$->liveVars, "%s,%s,%s", $$->nodeName, $1->nodeName, $3->nodeName); // needed for task #2;
     }
     | expression '-' expression {
         // same as + case, just change operation
@@ -82,6 +84,7 @@ expression :
         sprintf($$->nodeName, "Tmp%d", tmpNum);
         tmpNum++;
         sprintf($$->equation, " = %s - %s;\n", $1->nodeName, $3->nodeName);
+        sprintf($$->liveVars, "%s,%s,%s", $$->nodeName, $1->nodeName, $3->nodeName); // needed for task #2;
     }
     | expression '*' expression {
         // same as + case, just change operation
@@ -90,6 +93,7 @@ expression :
         sprintf($$->nodeName, "Tmp%d", tmpNum);
         tmpNum++;
         sprintf($$->equation, " = %s * %s;\n", $1->nodeName, $3->nodeName);
+        sprintf($$->liveVars, "%s,%s,%s", $$->nodeName, $1->nodeName, $3->nodeName); // needed for task #2;
     }
     | expression '/' expression {
         // same as + case, just change operation
@@ -98,6 +102,7 @@ expression :
         sprintf($$->nodeName, "Tmp%d", tmpNum);
         tmpNum++;
         sprintf($$->equation, " = %s / %s;\n", $1->nodeName, $3->nodeName);
+        sprintf($$->liveVars, "%s,%s,%s", $$->nodeName, $1->nodeName, $3->nodeName); // needed for task #2;
     }
     | expression EXP expression {
         // same as + case, just change operation
@@ -109,6 +114,7 @@ expression :
         sprintf($$->nodeName, "Tmp%d", tmpNum);
         tmpNum++;
         sprintf($$->equation, " = %s ** %s;\n", $1->nodeName, $3->nodeName);
+        sprintf($$->liveVars, "%s,%s,%s", $$->nodeName, $1->nodeName, $3->nodeName); // needed for task #2;
     }
     | expression '?' expression {
         int output;
@@ -138,6 +144,7 @@ expression :
         sprintf(exp_else, "\t%s = %s;\n} else {\n\t%s = 0;\n}\n", $$->nodeName, $3->nodeName, $$->nodeName);
         strcat(exp, exp_else);
         sprintf($$->equation, "%s", exp);
+        sprintf($$->liveVars, "%s,%s,%s", $$->nodeName, $1->nodeName, $3->nodeName); // needed for task #2;
     }
     | '!' expression {
         // same as + case, just change operation
@@ -151,12 +158,14 @@ expression :
         sprintf($$->nodeName, "Tmp%d", tmpNum);
         tmpNum++;
         sprintf($$->equation, " = %d;\n", output);
+        sprintf($$->liveVars, "%s", $$->nodeName); // needed for task #2;
     }
     | VAR '=' expression {
         struct node* n = findNode((char*)$1, $3->nodeVal, HEAD); // creates new node if necessary
         n->nodeVal = $3->nodeVal; // re-assigns node value
         $$ = push(STACK, n->nodeName, n->nodeVal);
         sprintf($$->equation, " = %s;\n", $3->nodeName);
+        sprintf($$->liveVars, "%s,%s", $$->nodeName, $3->nodeName); // needed for task #2;
     }
     | VAR {
         struct node* n = findNode((char*)$1, 0, HEAD); // creates new node if necessary (shouldn't have to in this case)
@@ -188,14 +197,21 @@ int main(int argc, char* argv[]){
     yyparse();
 
     // Task #1
+    //printf("\n****************************\n");
+    //printf("Revised Frontend (Task #1):\n");
+    //printStack(STACK);  
+
+    // Task #2
     printf("\n****************************\n");
-    printf("Revised Frontend (Task #1):\n");
-    printStack(STACK); 
+    printf("Register Allocation (Task #2):\n");
+    allocateRegisters(STACK);
 
     // Task #3
-    printf("\n****************************\n");
+    /* printf("\n****************************\n");
     printf("Program emission (Task #3):\n");
-    printEmission(STACK, inputVariables); 
+    printEmission(STACK, inputVariables);  */
+
+    // Complete
     fclose(yyin);
     return 0;
 }

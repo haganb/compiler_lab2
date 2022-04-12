@@ -7,6 +7,7 @@ struct node{
         int nodeVal;
         char equation[1000];
         struct node* next;
+        char liveVars[1000];
 }node;
 
 /* linked list function declarations */

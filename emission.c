@@ -25,10 +25,10 @@ void getVariableInitialization(struct stack *s, char* emission){
         char name[BUFFERLEN];
         if(strstr(pointer->nodeName, "Tmp") != NULL){
             if(firstTmpVar){
-                sprintf(name, " %s", pointer->nodeName);
+                sprintf(name, " %s", pointer->nodeName); // needs no comma preceeding it 
                 firstTmpVar = false;
             }else{
-                sprintf(name, ", %s", pointer->nodeName);
+                sprintf(name, ", %s", pointer->nodeName); // needs comma preceeding it so we can instantiate all on one line
             }
             strcat(tmpVars, name);
         }else{
