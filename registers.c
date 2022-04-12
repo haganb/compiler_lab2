@@ -26,6 +26,7 @@ int getNumOfVariables(struct stack* s){
     return num;
 }
 
+// helper function to get an actual string of all unique variable names, seperated by a space
 char* getUniqueVariables(struct stack* s){
     char* uniqueVariables = malloc(sizeof(char) * BUFFERLEN);
     struct node* pointer = s->bottom;
@@ -44,6 +45,7 @@ char* getUniqueVariables(struct stack* s){
     #endif
     return uniqueVariables;
 }
+
 // helper function to get the number of live variables in a given node
 int getNumOfLiveVars(struct node* n){
     int num = 0;
@@ -62,6 +64,13 @@ int getNumOfLiveVars(struct node* n){
 struct graphNode* createGraphNode(struct stack* s, char* nodeName){
     struct graphNode* newGraphNode = malloc(sizeof(struct graphNode));
     newGraphNode->nodeName = nodeName;
+
+    // allocate and assign values for edge attributes
+    newGraphNode->edges = malloc((sizeof(struct graphNode)) * 50);
+    newGraphNode->edgeCount = 0;
+
+    // set other default values
+    newGraphNode->allocatedRegister = 0; // defaults to having no allocated register
 
     // calculate the life of the new graph node
     int liveStart = 0;
@@ -86,13 +95,6 @@ struct graphNode* createGraphNode(struct stack* s, char* nodeName){
     liveEnd = mostRecentInstructionNum + 1; // NOTE: Keep track of this, could be wrong !
     newGraphNode->liveStart = liveStart;
     newGraphNode->liveEnd = liveEnd;
-    
-    // allocate and assign values for edge attributes
-    newGraphNode->edges = malloc((sizeof(struct graphNode)) * 50);
-    newGraphNode->edgeCount = 0;
-
-    // set other default values
-    newGraphNode->allocatedRegister = 0; // defaults to having no allocated register
 
     return newGraphNode;
 }
@@ -104,13 +106,11 @@ struct graphNode* findGraphNode(struct graphNode** graph, int graphSize, char* n
             return graph[i];
         }
     }
-    return NULL;
 }
 
 // create graph structure using variables
 struct graphNode** makeGraph(struct stack* s, char* varList, int numOfVars){
-    struct graphNode** graph = malloc(sizeof(struct graphNode*) * MAXNODES);
-
+    struct graphNode** graph = malloc(sizeof(struct graphNode*) * numOfVars);
 
     int nodeCounter = 0;
     char* delimited = strtok(varList, " "); // seperate variables
@@ -127,9 +127,9 @@ struct graphNode** makeGraph(struct stack* s, char* varList, int numOfVars){
         struct graphNode* pointer1 = graph[i];
         
         // compare node against all nodes after it
-        for(int j = i + 1; j < numOfVars; j++){
+        for(int registerNum = i + 1; registerNum < numOfVars; registerNum++){
             // needs to set edge if nodes have overlapping lives
-            struct graphNode* pointer2 = graph[j];
+            struct graphNode* pointer2 = graph[registerNum];
 
             // nodes overlap if:
             // if pointer1 lives after or at the same time as pointer2, and pointer1 starts before pointer 2 ends
@@ -156,20 +156,20 @@ bool isFourColorable(struct graphNode** graph, int graphSize){
     // loop through each graphNode in graph
     for(int i = 0; i < graphSize; i++){
         // For each register (starting from 1, ending at 4)
-        for(int j = 0; j < 4; j++){
+        for(int registerNum = 0; registerNum < 4; registerNum++){
 
             bool flag = true;
             // check all graphNodes that share edge with given graphNode
-            for(int k = 0; k < graph[i]->edgeCount; k++){
+            for(int nodeNeighbors = 0; nodeNeighbors < graph[i]->edgeCount; nodeNeighbors++){
                 // if register is already allocated
-                if(graph[i]->edges[k]->allocatedRegister == (j + 1)){
+                if(graph[i]->edges[nodeNeighbors]->allocatedRegister == (registerNum + 1)){
                     flag = false; // not 4-colorable as register has already been assigned
                 }
             }
 
             // if 4-colorable, store which register is being allocated for given variable
             if(flag){
-                graph[i]->allocatedRegister = (j + 1); // set allocated register value
+                graph[i]->allocatedRegister = (registerNum + 1); // set allocated register value
             }
         }
         // if no register is allocated
@@ -180,8 +180,9 @@ bool isFourColorable(struct graphNode** graph, int graphSize){
     return true;
 }
 
+struct graphNode** splitGraph(struct graphNode** graph, int graphSize){}
 
-
+// main method to combine all other methods
 void allocateRegisters(struct stack* s){
     // get total number of variables in stack
     int numVars = getNumOfVariables(s);
@@ -248,6 +249,8 @@ void allocateRegisters(struct stack* s){
     char reg2[BUFFERLEN] = "0";
     char reg3[BUFFERLEN] = "0";
     char reg4[BUFFERLEN] = "0";
+
+    // iterate through stack
     struct node* pointer = s->bottom;
     while(pointer->next != NULL){
         #ifdef DEBUG
@@ -260,11 +263,13 @@ void allocateRegisters(struct stack* s){
         while(liveVars != NULL){
             // find node corresponding to current live variable
             struct graphNode* currentNode = findGraphNode(graph, graphSize, liveVars);
+            printf("node name %s\n", currentNode->nodeName);
             if(currentNode != NULL){
                 // if you find the node...
                 char regBuffer[BUFFERLEN];
                 int index = currentNode->allocatedRegister - 1; // 0 indexing
                 // load proper register 
+                printf("index %d\n", index);
                 switch(index){
                     case 0:
                         sprintf(regBuffer, "%s", reg1);
@@ -283,14 +288,14 @@ void allocateRegisters(struct stack* s){
                         sprintf(reg4, "%s", currentNode->nodeName);
                         break;
                 }
-                if(strcmp(regBuffer, currentNode->nodeName)){
-                    // if register has not yet had a variable set to it
-                    if(strcmp(regBuffer, "0")){
-                        printf("%s=r%d\n", regBuffer, currentNode->allocatedRegister);
-                    }else{
-                        printf("r%d=%s\n", currentNode->allocatedRegister, currentNode->nodeName);
-                    }
-                }
+                // if(strcmp(regBuffer, currentNode->nodeName)){
+                //     // if register has not yet had a variable set to it
+                //     if(strcmp(regBuffer, "0")){
+                //         printf("%s=r%d\n", regBuffer, currentNode->allocatedRegister);
+                //     }else{
+                //         printf("r%d=%s\n", currentNode->allocatedRegister, currentNode->nodeName);
+                //     }
+                // }
             }
             liveVars = strtok(NULL, ",");
         }
